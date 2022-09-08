@@ -1,4 +1,4 @@
-# from PyQt6.QtGui import 
+from PyQt6.QtGui import 
 from PyQt6.QtWidgets import QWidget, QHBoxLayout
 
 class ToolBar(QWidget):
