@@ -57,12 +57,6 @@ class FileTree(QTreeView):
         self.hideColumn(3)
         self.setMaximumWidth(1000)
         self.setMinimumWidth(0)
-        
-    def re_init(self, path=FILE_SYSTEM_ROOT):
-        root_index = self.dirModel.index(path).parent()
-        self.proxy.root_path = path
-        proxy_root_index = self.proxy.mapFromSource(root_index)
-        self.setRootIndex(proxy_root_index)
 
 if __name__ == '__main__':
     import sys

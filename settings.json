@@ -1,1 +1,18 @@
-{"Последние файлы": ["C:/Users/genious/Documents/code/projects/Code Editor/globals.py", "C:/Users/genious/Documents/code/projects/Code Editor/settings.json", "C:/Users/genious/Documents/code/projects/Code Editor/window.py", "C:/Users/genious/Documents/code/projects/Code Editor/utils.py", "C:/Users/genious/Documents/code/test.cpp", "C:/Users/genious/Documents/code/projects/Code Editor/editor.py"], "Горячие клавиши": {"Создать новый файл": "Ctrl+n", "Новое окно": "Ctrl+Shift+n", "Открыть файл": "Ctrl+o", "Открыть директорию": "Ctrl+k", "Сохранить": "Ctrl+s", "Сохранить как": "Ctrl+Shift+s", "Закрыть файл": "Ctrl+w", "Выйти": "Alt+f4", "О редакторе": "Ctrl+h", "Запуск файла": "f8"}, "Настройки запуска": {"py": "python $file_path"}}
+{
+    "Последние файлы": [],
+    "Горячие клавиши": {
+        "Создать новый файл": "Ctrl+n",
+        "Новое окно": "Ctrl+Shift+n",
+        "Открыть файл": "Ctrl+o",
+        "Открыть директорию": "Ctrl+k",
+        "Сохранить": "Ctrl+s",
+        "Сохранить как": "Ctrl+Shift+s",
+        "Закрыть файл": "Ctrl+w",
+        "Выйти": "Alt+f4",
+        "О редакторе": "Ctrl+h",
+        "Запуск файла": "f8"
+    },
+    "Настройки запуска": {
+        "py": "python $file_path"
+    }
+}
