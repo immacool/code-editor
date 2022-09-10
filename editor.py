@@ -66,14 +66,14 @@ class CustomEditor(QsciScintilla):
         self.setUtf8(True)
 
         self.setCaretLineVisible(True)
-        self.setCaretLineBackgroundColor(QColor('gainsboro'))
+        self.setCaretLineBackgroundColor(QColor('#e5e5e5'))
 
         self.setAutoIndent(True)
         self.setIndentationGuides(False)
         self.setIndentationsUseTabs(True)
         self.setIndentationWidth(4)
 
-        self.setMarginsBackgroundColor(QColor("gainsboro"))
+        self.setMarginsBackgroundColor(QColor("#efefef"))
         self.setMarginLineNumbers(1, True)
         self.setMarginWidth(1, 50)
 
