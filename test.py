@@ -1,81 +1,36 @@
-import os
+import sys
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 
-from PyQt6.QtCore import pyqtSlot, QDir, QModelIndex, QSize, QSortFilterProxyModel
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTreeView
-from PyQt6.QtGui import QFileSystemModel
-from globals import PROJECT_DIRECTORY
+class DockDemo(QMainWindow):
+    def __init__(self,parent=None):
+        super(DockDemo, self).__init__(parent)
+        layout=QHBoxLayout()
+        bar=self.menuBar()
+        file=bar.addMenu('File')
+        file.addAction('New')
+        file.addAction('Save')
+        file.addAction('quit')
 
+        self.items=QDockWidget('Dockable',self)
 
-class ProxyModel(QSortFilterProxyModel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._root_path = ""
+        self.listWidget=QListWidget()
+        self.listWidget.addItem('Item1')
+        self.listWidget.addItem('Item2')
+        self.listWidget.addItem('Item3')
+        self.listWidget.addItem('Item4')
 
-    def filterAcceptsRow(self, source_row, source_parent):
-        source_model = self.sourceModel()
-        if self._root_path and isinstance(source_model, QFileSystemModel):
-            root_index = source_model.index(self._root_path).parent()
-            if root_index == source_parent:
-                index = source_model.index(source_row, 0, source_parent)
-                return index.data(QFileSystemModel.Roles.FilePathRole) == self._root_path
-        return True
+        self.items.setWidget(self.listWidget)
+        self.items.setFloating(False)
+        self.setCentralWidget(QTextEdit())
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea,self.items)
 
-    @property
-    def root_path(self):
-        return self._root_path
+        self.setLayout(layout)
+        self.setWindowTitle('Dock')
 
-    @root_path.setter
-    def root_path(self, p):
-        self._root_path = p
-        self.invalidateFilter()
-
-
-class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.create_treeview()
-        self.setCentralWidget(self.treeView)
-
-    def create_treeview(self):
-
-        path = r'C:/Users/genious/Documents/code/projects/Code Editor'
-
-        self.treeView = QTreeView()
-        self.treeView.setMinimumSize(QSize(250, 0))
-        self.treeView.setMaximumSize(QSize(250, 16777215))
-        self.treeView.setObjectName("treeView")
-
-        self.dirModel = QFileSystemModel()
-        self.dirModel.setRootPath(QDir.rootPath())
-        self.dirModel.setFilter(QDir.Filter.Files)
-
-        root_index = self.dirModel.index(path).parent()
-
-        self.proxy = ProxyModel(self.dirModel)
-        self.proxy.setSourceModel(self.dirModel)
-        self.proxy.root_path = path
-
-        self.treeView.setModel(self.proxy)
-
-        proxy_root_index = self.proxy.mapFromSource(root_index)
-        self.treeView.setRootIndex(proxy_root_index)
-
-        self.treeView.setHeaderHidden(True)
-        self.treeView.clicked.connect(self.tree_click)
-
-    @pyqtSlot(QModelIndex)
-    def tree_click(self, index):
-        ix = self.proxy.mapToSource(index)
-        print(
-            ix.data(QFileSystemModel.FilePathRole),
-            ix.data(QFileSystemModel.FileNameRole),
-        )
-
-
-if __name__ == "__main__":
-    import sys
-
-    app = QApplication(sys.argv)
-    w = MainWindow()
-    w.show()
+if __name__ == '__main__':
+    app=QApplication(sys.argv)
+    demo=DockDemo()
+    demo.show()
     sys.exit(app.exec())

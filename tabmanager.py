@@ -14,6 +14,12 @@ class TabManager(QTabWidget):
         The unsaved_changes attribute is True if there are any changes to the editor's document that have not been saved.
         """
         return {i: self.widget(i).file.saved for i in range(self.count())}
+    
+    def get_files(self):
+        """
+        The get_fiels function returns a list of the file paths for each editor.
+        """
+        return [self.widget(i).file for i in range(self.count())]
 
     def show_file(self, filepath=None, is_new=False):
         """
@@ -22,9 +28,13 @@ class TabManager(QTabWidget):
         
         :param filepath=None: Determine whether the file is opened from a file or created new
         :param is_new=False: Determine whether the file should be opened in a new tab or not
+        
+        :return: True if the file was opened successfully, False otherwise
         """
         if filepath:
             newtab = CustomEditor(filepath)
+            if newtab.error_while_reading:
+                return False
             newtabName = newtab.file.name
         elif is_new:
             newtab = CustomEditor()
@@ -36,3 +46,5 @@ class TabManager(QTabWidget):
         newtab.setCursorPosition(0, 0)
         newtab.ensureCursorVisible()
         newtab.setFocus()
+        
+        return True

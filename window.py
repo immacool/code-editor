@@ -1,14 +1,16 @@
 import os
 import subprocess
-from typing import Tuple
 from functools import partial
-from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QFrame, QMessageBox, QFileDialog, QLabel, QToolBar
-from PyQt6.QtGui import QAction, QIcon, QFileSystemModel
-from PyQt6.QtCore import QCoreApplication, Qt, QModelIndex, pyqtSlot
+from typing import Tuple
 
+from PyQt6.QtCore import QCoreApplication, QModelIndex, Qt, pyqtSlot
+from PyQt6.QtGui import QAction, QFileSystemModel, QIcon
+from PyQt6.QtWidgets import (QDockWidget, QFileDialog, QFrame, QLabel,
+                             QMainWindow, QMessageBox, QVBoxLayout)
+
+from globals import WINDOW_ICON
 from tabmanager import TabManager
 from tree import FileTree
-from globals import WINDOW_ICON
 from utils import SettingsInstance
 
 
@@ -20,7 +22,7 @@ class CustomMainWindow(QMainWindow):
         self.setWindowIcon(QIcon(WINDOW_ICON))
         self.setGeometry(300, 300, 800, 400)
         self.setWindowTitle("Редактор кода")
-        
+
         self.settings = SettingsInstance()
 
         layout = QVBoxLayout()
@@ -33,9 +35,17 @@ class CustomMainWindow(QMainWindow):
 
         self.tab_manager = TabManager()
         self.tab_manager.setVisible(False)
-        
+
         self.file_tree = FileTree()
         self.file_tree.doubleClicked.connect(self.openFromTree)
+
+        self.directory_sidebar = QDockWidget("Проводник", self)
+        self.directory_sidebar.setFloating(False)
+        self.directory_sidebar.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
+        self.directory_sidebar.setWidget(self.file_tree)
+        self.directory_sidebar.setVisible(False)
+
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.directory_sidebar)
 
         self.placeholder = QLabel(
             'Создайте новый файл (Ctrl + n)\nили\nоткройте существующий (Ctrl + o).'
@@ -44,7 +54,6 @@ class CustomMainWindow(QMainWindow):
 
         self._createActions()
         self._createMenuBar()
-        self._createToolBars()
 
         layout.addWidget(self.tab_manager)
         layout.addWidget(self.placeholder)
@@ -81,47 +90,46 @@ class CustomMainWindow(QMainWindow):
                 event.accept()
             else:
                 event.ignore()
-                
-    def _createToolBars(self):
-        # Using a title
-        fileToolBar = self.addToolBar("File")
-        fileToolBar.setMaximumWidth(1000)
-        fileToolBar.setMinimumWidth(0)
-        fileToolBar.addWidget(self.file_tree)
-        self.addToolBar(Qt.ToolBarArea.LeftToolBarArea, fileToolBar)
-
 
     def _createActions(self):
         """
         The _createActions function creates actions for the menu bar.
         """
         self.newAction = QAction("&Создать новый файл", self)
-        self.newAction.setShortcut(self.settings.hotkeys_settings['Создать новый файл'])
+        self.newAction.setShortcut(
+            self.settings.hotkeys_settings['Создать новый файл'])
         self.newAction.triggered.connect(self.newActionHandler)
-        
+
         # TODO: сделать чтобы хоть как-то работало
         self.newWindowAction = QAction("&Новое окно", self)
-        self.newWindowAction.setShortcut(self.settings.hotkeys_settings['Новое окно'])
+        self.newWindowAction.setShortcut(
+            self.settings.hotkeys_settings['Новое окно'])
         self.newWindowAction.triggered.connect(self.newWindowActionHandler)
 
         self.openAction = QAction("&Открыть файл...", self)
-        self.openAction.setShortcut(self.settings.hotkeys_settings['Открыть файл'])
+        self.openAction.setShortcut(
+            self.settings.hotkeys_settings['Открыть файл'])
         self.openAction.triggered.connect(self.openActionHandler)
-        
+
         self.openDirectoryAction = QAction("&Открыть директорию...", self)
-        self.openDirectoryAction.setShortcut(self.settings.hotkeys_settings['Открыть директорию'])
-        self.openDirectoryAction.triggered.connect(self.openDirectoryActionHandler)
+        self.openDirectoryAction.setShortcut(
+            self.settings.hotkeys_settings['Открыть директорию'])
+        self.openDirectoryAction.triggered.connect(
+            self.openDirectoryActionHandler)
 
         self.saveAction = QAction("&Сохранить", self)
-        self.saveAction.setShortcut(self.settings.hotkeys_settings['Сохранить'])
+        self.saveAction.setShortcut(
+            self.settings.hotkeys_settings['Сохранить'])
         self.saveAction.triggered.connect(self.saveActionHandler)
 
         self.saveAsAction = QAction("&Сохранить как...", self)
-        self.saveAsAction.setShortcut(self.settings.hotkeys_settings['Сохранить как'])
+        self.saveAsAction.setShortcut(
+            self.settings.hotkeys_settings['Сохранить как'])
         self.saveAsAction.triggered.connect(self.saveAsActionHandler)
 
         self.closeAction = QAction("&Закрыть файл", self)
-        self.closeAction.setShortcut(self.settings.hotkeys_settings['Закрыть файл'])
+        self.closeAction.setShortcut(
+            self.settings.hotkeys_settings['Закрыть файл'])
         self.closeAction.triggered.connect(self.closeActionHandler)
 
         self.exitAction = QAction("&Выйти", self)
@@ -131,14 +139,16 @@ class CustomMainWindow(QMainWindow):
         self.copyAction = QAction("&Копировать", self)
         self.pasteAction = QAction("&Вставить", self)
         self.cutAction = QAction("&Вырезать", self)
-        
+
         self.runAction = QAction("&Выйти", self)
-        self.runAction.setShortcut(self.settings.hotkeys_settings['Запуск файла'])
+        self.runAction.setShortcut(
+            self.settings.hotkeys_settings['Запуск файла'])
         self.runAction.triggered.connect(self.runActionHandler)
-        
+
         self.helpContentAction = QAction("&Документация", self)
         self.aboutAction = QAction("&О редакторе", self)
-        self.aboutAction.setShortcut(self.settings.hotkeys_settings['О редакторе'])
+        self.aboutAction.setShortcut(
+            self.settings.hotkeys_settings['О редакторе'])
         self.aboutAction.triggered.connect(self.aboutActionHandler)
 
     def _createMenuBar(self):
@@ -154,28 +164,28 @@ class CustomMainWindow(QMainWindow):
         fileMenu.addSeparator()
         fileMenu.addAction(self.openAction)
         fileMenu.addAction(self.openDirectoryAction)
-        
+
         self.openRecentMenu = fileMenu.addMenu("&Открыть последние")
         self.openRecentMenu.aboutToShow.connect(self.populateOpenRecent)
-        
+
         fileMenu.addSeparator()
         fileMenu.addAction(self.saveAction)
         fileMenu.addAction(self.saveAsAction)
         fileMenu.addAction(self.closeAction)
         fileMenu.addSeparator()
         fileMenu.addAction(self.exitAction)
-        
+
         editMenu = menuBar.addMenu("&Правка")
         editMenu.addAction(self.copyAction)
         editMenu.addAction(self.pasteAction)
         editMenu.addAction(self.cutAction)
-        
+
         editMenu = menuBar.addMenu("&Запуск")
         editMenu.addAction(self.runAction)
 
         helpMenu = menuBar.addMenu("&Справка")
         helpMenu.addAction(self.aboutAction)
-        
+
     def populateOpenRecent(self):
         self.openRecentMenu.clear()
         actions = []
@@ -186,15 +196,16 @@ class CustomMainWindow(QMainWindow):
             action.triggered.connect(partial(self.openActionHandler, path))
             actions.append(action)
         self.openRecentMenu.addActions(actions)
-        
+
     @pyqtSlot(QModelIndex)
     def openFromTree(self, index):
         ix = self.file_tree.proxy.mapToSource(index)
         path = ix.data(QFileSystemModel.Roles.FilePathRole)
+        print('test')
+        
         if not os.path.isdir(path):
             self.openActionHandler(path)
-        
-        
+
     def add_recent(self):
         new_recent = self.tab_manager.currentWidget().file.path
         self.settings.add_recent(new_recent)
@@ -204,7 +215,7 @@ class CustomMainWindow(QMainWindow):
             self.placeholder.setVisible(False)
             self.tab_manager.setVisible(True)
 
-        self.tab_manager.show_file(path, is_new_file)
+        return self.tab_manager.show_file(path, is_new_file)
 
     def remove_tab(self, idx):
         self.tab_manager.removeTab(idx)
@@ -218,7 +229,7 @@ class CustomMainWindow(QMainWindow):
         The newActionHandler function creates a new file in the editor.
         """
         self.add_tab(is_new_file=True)
-        
+
     def newWindowActionHandler(self):
         new_window = CustomMainWindow()
 
@@ -231,11 +242,24 @@ class CustomMainWindow(QMainWindow):
             file_path, _ = self.choose_file()
 
         if file_path:
-            self.add_tab(path=file_path)
-            self.add_recent()
-            
-    def openDirectoryActionHandler(self): pass
-    def openRecentActionHandler(self): pass
+            if self.add_tab(path=file_path):
+                self.add_recent()
+
+    def choose_directory(self):
+        directory = QFileDialog.getExistingDirectory(self, "Выберите папку",
+                                                     os.path.expanduser('~'))
+        return directory
+
+    def openDirectoryActionHandler(self):
+        directory = self.choose_directory()
+        if directory:
+            self.file_tree = FileTree(directory)
+            self.file_tree.doubleClicked.connect(self.openFromTree)
+            self.directory_sidebar.setWidget(self.file_tree)
+            self.directory_sidebar.setVisible(True)
+
+    def openRecentActionHandler(self):
+        pass
 
     def saveFile(self):
         """
@@ -258,7 +282,7 @@ class CustomMainWindow(QMainWindow):
         code = editor.text()
         code = code.replace('\r', '')
         editor.file.save(code)
-        
+
     def runActionHandler(self):
         file_ext = self.tab_manager.currentWidget().file.extention
         subprocess.popen(file_ext, shell=True, check=True)

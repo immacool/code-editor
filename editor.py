@@ -1,9 +1,10 @@
 import ntpath
+
 import PyQt6.Qsci as lexers
 from PyQt6.Qsci import QsciScintilla
-from PyQt6.QtGui import QColor, QKeyEvent, QFont
-from PyQt6.QtWidgets import QMessageBox
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor, QFont, QKeyEvent
+from PyQt6.QtWidgets import QMessageBox
 
 
 class File:
@@ -12,7 +13,6 @@ class File:
             self.path = file_path
             self.name = ntpath.basename(file_path)
             self.extention = ntpath.splitext(file_path)[1]
-            
             self.new = False
         else:
             self.new = True
@@ -43,6 +43,9 @@ class CustomEditor(QsciScintilla):
             try:
                 with open(file_path, "r", encoding='utf8') as f:
                     text = f.read()
+                self.setText(text)
+                self.file = File(file_path)
+                self.reload_lexer(self.file.extention)
             except UnicodeDecodeError:
                 msgBox = QMessageBox()
                 msgBox.setIcon(QMessageBox.Icon.Critical)
@@ -52,11 +55,13 @@ class CustomEditor(QsciScintilla):
                 msgBox.setWindowTitle("Ошибка")
                 msgBox.addButton('Продолжить', QMessageBox.ButtonRole.AcceptRole)
                 msgBox.exec()
-            self.setText(text)
-            self.file = File(file_path)
-            self.reload_lexer(self.file.extention)
+                
+                self.error_while_reading = True
+                return
         else:
             self.file = File()
+            
+        self.error_while_reading = False
 
         self.setUtf8(True)
 

@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QTreeView, QApplication
 from PyQt6.QtGui import QFileSystemModel
 from PyQt6.QtCore import QDir, QModelIndex, QSortFilterProxyModel
 
-from globals import PROJECT_DIRECTORY
+FILE_SYSTEM_ROOT = QDir.rootPath()
 
 
 class ProxyModel(QSortFilterProxyModel):
@@ -33,12 +33,12 @@ class ProxyModel(QSortFilterProxyModel):
 
 class FileTree(QTreeView):
 
-    def __init__(self, path=PROJECT_DIRECTORY):
+    def __init__(self, path=FILE_SYSTEM_ROOT):
         QTreeView.__init__(self)
         
         self.dirModel = QFileSystemModel()
         self.dirModel.setRootPath(QDir.rootPath())
-        self.dirModel.setFilter(QDir.Filter.Files)
+        self.dirModel.setFilter(QDir.Filter.Files | QDir.Filter.Dirs | QDir.Filter.NoDotAndDotDot)
 
         root_index = self.dirModel.index(path).parent()
 
@@ -57,6 +57,12 @@ class FileTree(QTreeView):
         self.hideColumn(3)
         self.setMaximumWidth(1000)
         self.setMinimumWidth(0)
+        
+    def re_init(self, path=FILE_SYSTEM_ROOT):
+        root_index = self.dirModel.index(path).parent()
+        self.proxy.root_path = path
+        proxy_root_index = self.proxy.mapFromSource(root_index)
+        self.setRootIndex(proxy_root_index)
 
 if __name__ == '__main__':
     import sys
