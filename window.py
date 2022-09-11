@@ -84,12 +84,21 @@ class CustomMainWindow(QMainWindow):
                 "Один из файлов не был сохранен, вы действительно хотите выйти?"
             )
             msgBox.setWindowTitle("Несохраненные изменения")
+            msgBox.addButton('Сохранить', QMessageBox.ButtonRole.ActionRole)
             msgBox.addButton('Да', QMessageBox.ButtonRole.YesRole)
             msgBox.addButton('Нет', QMessageBox.ButtonRole.NoRole)
+            
             reply = msgBox.exec()
 
-            # 0 - Да, 1 - Нет
+            # 0 - Сохранить
+            # 1 - Да
+            # 2 - Нет
             if reply == 0:
+                for editor in self.get_editors():
+                    if not editor.file.saved:
+                        self.saveActionHandler(editor)
+                event.accept()
+            elif reply == 1:
                 event.accept()
             else:
                 event.ignore()
@@ -299,16 +308,18 @@ class CustomMainWindow(QMainWindow):
             else:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Icon.Warning)
-                msg.setText("Нет настроек запуска для данного файла")
+                msg.setText("Нет настроек запуска для данного файла. Их можно установить в файле settings.json в папке редактора.")
                 msg.setWindowTitle("Ошибка")
                 msg.setStandardButtons(QMessageBox.StandardButton.Ok)
                 msg.exec()
 
-    def saveActionHandler(self):
+    def saveActionHandler(self, editor=None):
         """
         The saveActionHandler method is called when the user selects the save action from the file menu or presses Ctrl+S.
         """
-        editor = self.tab_manager.currentWidget()
+        if not editor:
+            editor = self.tab_manager.currentWidget()
+        
         if editor.file.new:
             file_path, _ = self.choose_file_save()
             if file_path:
@@ -319,9 +330,7 @@ class CustomMainWindow(QMainWindow):
 
     def saveAsActionHandler(self):
         """
-        The saveAsActionHandler method is called when the user selects the saveAsAction from the file menu. 
-        It opens a dialog box to allow them to choose where they want to save their file and what name they want it saved as. 
-        If a path is chosen, then that path is used in self.saveFile(file_path) which saves the current document.
+        Сохранение файла с выбором пути, а так же обработчик действия "Сохранить как"
         """
         editor = self.tab_manager.currentWidget()
         file_path, _ = self.choose_file_save()
@@ -331,25 +340,41 @@ class CustomMainWindow(QMainWindow):
 
     def closeActionHandler(self):
         """
-        The closeActionHandler function clears the editor and makes it invisible when file closes.
+        Метод закрытия файла, а так же обработчик действия "Закрыть"
         """
         self.remove_tab(self.tab_manager.currentIndex())
 
-    # TODO: implement cringe usless functions
-    def exitActionHandler(self):
-        raise NotImplementedError
-
     def copyActionHandler(self):
-        raise NotImplementedError
+        """
+        Обработчик действия "Копировать"
+        """
+        self.tab_manager.currentWidget().copy()
 
     def pasteActionHandler(self):
-        raise NotImplementedError
+        """
+        Обработчик действия "Вставить"
+        """
+        self.tab_manager.currentWidget().paste()
 
     def cutActionHandler(self):
-        raise NotImplementedError
+        """
+        Обработчик действия "Вырезать"
+        """
+        self.tab_manager.currentWidget().cut()
 
     def aboutActionHandler(self):
-        return QMessageBox()
+        """
+        The aboutActionHandler function displays a message box containing information about the editor.
+        """
+        text = "<center>" \
+            "<h1>Редактор кода Light</h1>" \
+            "<p>Light - это редактор кода с подсветкой синтаксиса, автодополнением и множеством других функций.</p>" \
+            "<p>Он был создан в качестве курсового проекта для колледжа, и построен на виджетах PyQt6 и Qscintilla</p>" \
+            f"<img src={WINDOW_ICON}>" \
+            "</center>" \
+            "<p>Вресия 1.0.0<br/>" \
+            "Copyright &copy; Жужелица Inc.</p>"
+        QMessageBox.about(self, "О программе", text)
 
     def choose_file(self) -> Tuple[str, str]:
         """

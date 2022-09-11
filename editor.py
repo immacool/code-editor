@@ -8,16 +8,19 @@ from PyQt6.QtWidgets import QMessageBox
 
 
 class File:
-    def __init__(self, file_path=None, saved=False, new=None):
+    def __init__(self, file_path=None, saved=True):
         if file_path:
             self.path = file_path
             self.name = ntpath.basename(file_path)
             self.extention = ntpath.splitext(file_path)[1]
             self.new = False
         else:
+            self.path = None
+            self.name = None
+            self.extention = None
             self.new = True
         
-        self.saved = False
+        self.saved = saved
         
     def update_path(self, file_path):
         self.path = file_path
@@ -91,6 +94,7 @@ class CustomEditor(QsciScintilla):
         self.setMatchedBraceBackgroundColor(QColor("white"))
         self.setUnmatchedBraceForegroundColor(QColor("red"))
         
+        
     def reload_lexer(self, file_extention):
         match file_extention[1:]:
             case 'json':
@@ -123,7 +127,7 @@ class CustomEditor(QsciScintilla):
         The changeEvent function is called whenever the user changes a text in the editor. 
         It is used to track whether there are unsaved changes in the code.
         """
-        self.unsaved_changes = True
+        self.file.saved = False
 
     def keyPressEvent(self, e: QKeyEvent) -> None:
         """
