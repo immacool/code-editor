@@ -1,5 +1,13 @@
 {
-    "Последние файлы": [],
+    "Последние файлы": [
+        "C:/Users/genious/Documents/code/scripts/interpolation.py",
+        "C:/Users/genious/Documents/code/test.cpp",
+        "C:/Users/genious/Documents/code/test1.cpp",
+        "C:/Users/genious/Documents/code/scripts/cesaer_cipher.py",
+        "C:/Users/genious/Documents/code/scripts/bitwise_summator.py",
+        "C:/Users/genious/Documents/code/scripts/minesweeper.py",
+        "C:/Users/genious/Documents/code/scripts/niiswa.py"
+    ],
     "Горячие клавиши": {
         "Создать новый файл": "Ctrl+n",
         "Новое окно": "Ctrl+Shift+n",

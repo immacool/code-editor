@@ -68,6 +68,7 @@ class CustomEditor(QsciScintilla):
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor('#e5e5e5'))
 
+        self.setTabIndents(True)
         self.setAutoIndent(True)
         self.setIndentationGuides(False)
         self.setIndentationsUseTabs(True)

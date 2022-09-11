@@ -41,11 +41,14 @@ class CustomMainWindow(QMainWindow):
 
         self.directory_sidebar = QDockWidget("Проводник", self)
         self.directory_sidebar.setFloating(False)
-        self.directory_sidebar.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
+        self.directory_sidebar.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea)
         self.directory_sidebar.setWidget(self.file_tree)
         self.directory_sidebar.setVisible(False)
 
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.directory_sidebar)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,
+                           self.directory_sidebar)
 
         self.placeholder = QLabel(
             'Создайте новый файл (Ctrl + n)\nили\nоткройте существующий (Ctrl + o).'
@@ -140,7 +143,7 @@ class CustomMainWindow(QMainWindow):
         self.pasteAction = QAction("&Вставить", self)
         self.cutAction = QAction("&Вырезать", self)
 
-        self.runAction = QAction("&Выйти", self)
+        self.runAction = QAction("&Запуск открытого файла", self)
         self.runAction.setShortcut(
             self.settings.hotkeys_settings['Запуск файла'])
         self.runAction.triggered.connect(self.runActionHandler)
@@ -202,7 +205,7 @@ class CustomMainWindow(QMainWindow):
         ix = self.file_tree.proxy.mapToSource(index)
         path = ix.data(QFileSystemModel.Roles.FilePathRole)
         print('test')
-        
+
         if not os.path.isdir(path):
             self.openActionHandler(path)
 
@@ -284,13 +287,26 @@ class CustomMainWindow(QMainWindow):
         editor.file.save(code)
 
     def runActionHandler(self):
-        file_ext = self.tab_manager.currentWidget().file.extention
-        subprocess.popen(file_ext, shell=True, check=True)
+        if editor := self.tab_manager.currentWidget():
+            file = editor.file
+            command = self.settings.run_settings.get(file.extention[1:], None)
+            if command:
+                self.saveActionHandler()
+                command = command.replace('$file_path', file.path)
+                subprocess.Popen('start /wait ' + command,
+                                 shell=True,
+                                 creationflags=subprocess.CREATE_NEW_CONSOLE)
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Icon.Warning)
+                msg.setText("Нет настроек запуска для данного файла")
+                msg.setWindowTitle("Ошибка")
+                msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+                msg.exec()
 
     def saveActionHandler(self):
         """
-        The saveActionHandler method saves the current file to a specified location.
-        If no location is specified, it will save the file to its original location.
+        The saveActionHandler method is called when the user selects the save action from the file menu or presses Ctrl+S.
         """
         editor = self.tab_manager.currentWidget()
         if editor.file.new:
