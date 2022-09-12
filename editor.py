@@ -34,6 +34,9 @@ class File:
         self.saved = True
         if self.new:
             self.new = False
+            
+    def __repr__(self) -> str:
+        return f"File({self.path}, {self.saved})"
 
 class CustomEditor(QsciScintilla):
 
@@ -128,6 +131,7 @@ class CustomEditor(QsciScintilla):
         It is used to track whether there are unsaved changes in the code.
         """
         self.file.saved = False
+        print(self.file)
 
     def keyPressEvent(self, e: QKeyEvent) -> None:
         """

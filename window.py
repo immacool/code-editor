@@ -28,7 +28,6 @@ class CustomMainWindow(QMainWindow):
         layout = QVBoxLayout()
 
         frame = QFrame(self)
-        # frame.setStyleSheet("QWidget { background-color: #ffeaeaea }")
         frame.setLayout(layout)
 
         self.setCentralWidget(frame)
@@ -64,20 +63,20 @@ class CustomMainWindow(QMainWindow):
         self.show()
 
     def get_editors(self):
+        """
+        Возвращает список всех редакторов.
+        """
         return [
             self.tab_manager.widget(i) for i in range(self.tab_manager.count())
         ]
 
     def closeEvent(self, event):
         """
-        The closeEvent function is called when the user closes the window.
-        It checks if there are any unsaved changes in the file and prompts for confirmation before closing.
-        
-        :param event: PyQt automatically passes the event object to the function
+        Переопределение метода закрытия окна.
         """
-        unsaved_changes = any(self.tab_manager.editors_states().values())
+        are_all_saved = all(e.file.saved for e in self.get_editors())
 
-        if unsaved_changes:
+        if not are_all_saved:
             msgBox = QMessageBox()
             msgBox.setIcon(QMessageBox.Icon.Warning)
             msgBox.setText(
@@ -87,7 +86,7 @@ class CustomMainWindow(QMainWindow):
             msgBox.addButton('Сохранить', QMessageBox.ButtonRole.ActionRole)
             msgBox.addButton('Да', QMessageBox.ButtonRole.YesRole)
             msgBox.addButton('Нет', QMessageBox.ButtonRole.NoRole)
-            
+
             reply = msgBox.exec()
 
             # 0 - Сохранить
@@ -105,7 +104,8 @@ class CustomMainWindow(QMainWindow):
 
     def _createActions(self):
         """
-        The _createActions function creates actions for the menu bar.
+        Описание действий, которые будут выполняться при нажатии на кнопки в меню, а так же
+        инициализация горячих клавиш для них.
         """
         self.newAction = QAction("&Создать новый файл", self)
         self.newAction.setShortcut(
@@ -165,8 +165,7 @@ class CustomMainWindow(QMainWindow):
 
     def _createMenuBar(self):
         """
-        The _createMenuBar function creates the menu bar for the application.
-        It adds actions to each of its menus, and sets icons where applicable.
+        _createMenuBar создает меню и добавляет в них действия.
         """
         menuBar = self.menuBar()
 
@@ -199,6 +198,9 @@ class CustomMainWindow(QMainWindow):
         helpMenu.addAction(self.aboutAction)
 
     def populateOpenRecent(self):
+        """
+        Обновляет список последних открытых файлов.
+        """
         self.openRecentMenu.clear()
         actions = []
         self.settings.refresh()
@@ -211,18 +213,25 @@ class CustomMainWindow(QMainWindow):
 
     @pyqtSlot(QModelIndex)
     def openFromTree(self, index):
+        """
+        openFromTree открывает файл, который был выбран в дереве файлов.
+        """
         ix = self.file_tree.proxy.mapToSource(index)
         path = ix.data(QFileSystemModel.Roles.FilePathRole)
-        print('test')
-
         if not os.path.isdir(path):
             self.openActionHandler(path)
 
     def add_recent(self):
+        """
+        add_recent добавляет открытый файл в список последних файлов.
+        """
         new_recent = self.tab_manager.currentWidget().file.path
         self.settings.add_recent(new_recent)
 
     def add_tab(self, path='', is_new_file=False):
+        """
+        add_tab добавляет новую вкладку в редактор.
+        """
         if self.tab_manager.count() == 0:
             self.placeholder.setVisible(False)
             self.tab_manager.setVisible(True)
@@ -230,6 +239,9 @@ class CustomMainWindow(QMainWindow):
         return self.tab_manager.show_file(path, is_new_file)
 
     def remove_tab(self, idx):
+        """
+        remove_tab удаляет вкладку с индексом idx.
+        """
         self.tab_manager.removeTab(idx)
 
         if self.tab_manager.count() == 0:
@@ -243,12 +255,16 @@ class CustomMainWindow(QMainWindow):
         self.add_tab(is_new_file=True)
 
     def newWindowActionHandler(self):
-        new_window = CustomMainWindow()
+        """
+        Метод создает новое окно редактора.
+        """
+        raise NotImplementedError
 
     def openActionHandler(self, file_path=None):
         """
-        The openActionHandler function opens a file dialog and sets the text of the editor to the contents of 
-        the chosen file. If no file is chosen, nothing happens.
+        openActionHandler открывает диалоговое окно выбора файла и открывает его в редакторе, или
+        открывает файл, который был передан в качестве аргумента.
+        Так же является обработчиком действия "Открыть файл".
         """
         if not file_path:
             file_path, _ = self.choose_file()
@@ -256,6 +272,7 @@ class CustomMainWindow(QMainWindow):
         if file_path:
             if self.add_tab(path=file_path):
                 self.add_recent()
+                self.tab_manager.currentWidget().file.saved = True
 
     def choose_directory(self):
         directory = QFileDialog.getExistingDirectory(self, "Выберите папку",
@@ -263,6 +280,10 @@ class CustomMainWindow(QMainWindow):
         return directory
 
     def openDirectoryActionHandler(self):
+        """
+        Этот метод открывает диалоговое окно выбора папки и открывает дерево файлов в док панели.
+        Так же является обработчиком действия "Открыть папку".
+        """
         directory = self.choose_directory()
         if directory:
             self.file_tree = FileTree(directory)
@@ -275,13 +296,8 @@ class CustomMainWindow(QMainWindow):
 
     def saveFile(self):
         """
-        The saveFile function saves the contents of the editor to a file.
-        It does this by writing to an open file object, which is created with
-        the 'w' flag (indicating that it is opened for writing). The function 
-        also sets self.unsaved_changes to False and updates self.opened_file_path 
-        to reflect the new path of the saved file.
-        
-        :param file_path: Save the file to a specific location
+        saveFile сохраняет файл в зависимости от его типа: новый или уже сущестующий.
+        Так же является обработчиком действия "Сохранить".
         """
         editor = self.tab_manager.currentWidget()
         if editor.file.new:
@@ -296,6 +312,10 @@ class CustomMainWindow(QMainWindow):
         editor.file.save(code)
 
     def runActionHandler(self):
+        """
+        Запуск файла в соответствии с его расширением.
+        Так же является обработчиком действия "Запустить".
+        """
         if editor := self.tab_manager.currentWidget():
             file = editor.file
             command = self.settings.run_settings.get(file.extention[1:], None)
@@ -308,18 +328,20 @@ class CustomMainWindow(QMainWindow):
             else:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Icon.Warning)
-                msg.setText("Нет настроек запуска для данного файла. Их можно установить в файле settings.json в папке редактора.")
+                msg.setText(
+                    "Нет настроек запуска для данного файла. Их можно установить в файле settings.json в папке редактора."
+                )
                 msg.setWindowTitle("Ошибка")
                 msg.setStandardButtons(QMessageBox.StandardButton.Ok)
                 msg.exec()
 
     def saveActionHandler(self, editor=None):
         """
-        The saveActionHandler method is called when the user selects the save action from the file menu or presses Ctrl+S.
+        Сохранение файла в запрошенной директории, а так же обработчик действия "Сохранить как"
         """
         if not editor:
             editor = self.tab_manager.currentWidget()
-        
+
         if editor.file.new:
             file_path, _ = self.choose_file_save()
             if file_path:
@@ -378,13 +400,12 @@ class CustomMainWindow(QMainWindow):
 
     def choose_file(self) -> Tuple[str, str]:
         """
-        The choose_file function allows the user to select a file from their computer.
-        The function returns a tuple containing the path and filter used to choose the file.
+        Метод choose_file открывает диалоговое окно выбора файла и возвращает путь к нему.
         
         `path, filters = self.choose_file()`
-        :return: A tuple containing the path and filter
+        :return: Путь к файлу и фильтры
         """
-        return QFileDialog.getOpenFileName(self, 'Open file',
+        return QFileDialog.getOpenFileName(self, 'Открыть файл',
                                            __file__) or __file__
 
     def choose_file_save(self) -> Tuple[str, str]:
