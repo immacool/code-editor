@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 from globals import SETTINGS_PATH
 
+from palettes import Theme
 
 class SettingsInstance:
 
@@ -12,7 +13,7 @@ class SettingsInstance:
 
     def refresh(self):
         self.hotkeys_settings = self.__settings.get('Горячие клавиши')
-        self.default_theme = self.__settings.get('Тема по умолчанию')
+        self.default_theme = Theme.get_theme(self.__settings.get('Тема по умолчанию'))
         self.run_settings = self.__settings.get('Настройки запуска')
         self.recent_files = self.__settings.get('Последние файлы')
 

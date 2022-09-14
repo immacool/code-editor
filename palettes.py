@@ -1,19 +1,32 @@
-from PyQt6.QtGui import QColor, QPalette
+import enum
+
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor, QPalette
 
-GlobalColor = Qt.GlobalColor
 
-dark_palette = QPalette()
-dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
-dark_palette.setColor(QPalette.WindowText, GlobalColor.white)
-dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
-dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-dark_palette.setColor(QPalette.ToolTipBase, GlobalColor.white)
-dark_palette.setColor(QPalette.ToolTipText, GlobalColor.white)
-dark_palette.setColor(QPalette.Text, GlobalColor.white)
-dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-dark_palette.setColor(QPalette.ButtonText, GlobalColor.white)
-dark_palette.setColor(QPalette.BrightText, GlobalColor.red)
-dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-dark_palette.setColor(QPalette.HighlightedText, GlobalColor.black)
+class Theme(enum.Enum):
+    LIGHT = 'light'
+    DARK = 'dark'
+
+    @staticmethod
+    def get_theme(value):
+        return {'dark': Theme.DARK, 'light': Theme.LIGHT}[value]
+
+
+def get_dark_palette():
+    dark_palette = QPalette()
+    dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
+    dark_palette.setColor(QPalette.ColorRole.Base, QColor(25, 25, 25))
+    dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ColorRole.ToolTipBase, Qt.GlobalColor.white)
+    dark_palette.setColor(QPalette.ColorRole.ToolTipText, Qt.GlobalColor.white)
+    dark_palette.setColor(QPalette.ColorRole.Text, Qt.GlobalColor.white)
+    dark_palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ColorRole.ButtonText, Qt.GlobalColor.white)
+    dark_palette.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
+    dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.ColorRole.HighlightedText,
+                          Qt.GlobalColor.white)
+    return dark_palette

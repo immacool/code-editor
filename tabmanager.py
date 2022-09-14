@@ -5,8 +5,9 @@ from editor import CustomEditor
 
 class TabManager(QTabWidget):
 
-    def __init__(self):
+    def __init__(self, theme):
         super(TabManager, self).__init__()
+        self.theme = theme
 
     def editors_states(self) -> dict:
         """
@@ -32,12 +33,12 @@ class TabManager(QTabWidget):
         :return: True if the file was opened successfully, False otherwise
         """
         if filepath:
-            newtab = CustomEditor(filepath)
+            newtab = CustomEditor(self.theme, file_path=filepath)
             if newtab.error_while_reading:
                 return False
             newtabName = newtab.file.name
         elif is_new:
-            newtab = CustomEditor()
+            newtab = CustomEditor(self.theme)
             newtabName = "Без имени"
 
         self.addTab(newtab, newtabName)

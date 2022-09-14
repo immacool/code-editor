@@ -10,20 +10,21 @@ from PyQt6.QtWidgets import (QDockWidget, QFileDialog, QFrame, QLabel,
 
 from globals import WINDOW_ICON
 from tabmanager import TabManager
+from palettes import Theme
 from tree import FileTree
-from utils import SettingsInstance
 
 
 class CustomMainWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self, settings):
         super(CustomMainWindow, self).__init__()
 
         self.setWindowIcon(QIcon(WINDOW_ICON))
         self.setGeometry(300, 300, 800, 400)
         self.setWindowTitle("Редактор кода")
 
-        self.settings = SettingsInstance()
+        self.settings = settings
+        self.theme = self.settings.default_theme
 
         layout = QVBoxLayout()
 
@@ -32,7 +33,7 @@ class CustomMainWindow(QMainWindow):
 
         self.setCentralWidget(frame)
 
-        self.tab_manager = TabManager()
+        self.tab_manager = TabManager(theme=self.theme)
         self.tab_manager.setVisible(False)
 
         self.file_tree = FileTree()
