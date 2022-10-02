@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QTabWidget
 
-from editor import CustomEditor
-
+from editor import CustomEditor, File
+from db_view import DatabaseEditor, Database
 
 class TabManager(QTabWidget):
 
@@ -33,7 +33,15 @@ class TabManager(QTabWidget):
         :return: True if the file was opened successfully, False otherwise
         """
         if filepath:
-            newtab = CustomEditor(self.theme, file_path=filepath)
+            file = File(filepath)
+            if file.extention in File.DATABASE_EXTENTIONS:
+                db = Database(filepath)
+                newtab = DatabaseEditor(db)
+            else:
+                newtab = CustomEditor(self.theme, file_object=file)
+                newtab.setCursorPosition(0, 0)
+                newtab.ensureCursorVisible()
+                newtab.setFocus()
             if newtab.error_while_reading:
                 return False
             newtabName = newtab.file.name
@@ -44,8 +52,6 @@ class TabManager(QTabWidget):
         self.addTab(newtab, newtabName)
         self.setCurrentWidget(newtab)
 
-        newtab.setCursorPosition(0, 0)
-        newtab.ensureCursorVisible()
-        newtab.setFocus()
+        
         
         return True

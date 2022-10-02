@@ -10,6 +10,8 @@ from palettes import Theme
 
 
 class File:
+    DATABASE_EXTENTIONS = ('.db', '.sqlite', '.sqlite3', '.sqlitedb', '.sqlitedb3', '.sqlitedb3-shm', '.sqlitedb3-wal',)
+    
     def __init__(self, file_path=None, saved=True):
         if file_path:
             self.path = file_path
@@ -48,18 +50,18 @@ class File:
 
 class CustomEditor(QsciScintilla):
 
-    def __init__(self, theme, file_path=None, *args, key_press_handler=None, **kwargs):
+    def __init__(self, theme, file_path=None, file_object=None, *args, key_press_handler=None, **kwargs):
         super(CustomEditor, self).__init__(*args, **kwargs)
         
         self.key_press_handler = key_press_handler
         self.theme = theme
         
-        if file_path:
+        if file_path or file_object:
             try:
-                with open(file_path, "r", encoding='utf8') as f:
+                self.file = file_object if file_object else File(file_path)
+                with open(self.file.path, "r", encoding='utf8') as f:
                     text = f.read()
                 self.setText(text)
-                self.file = File(file_path)
                 self.reload_lexer(self.file.extention)
             except UnicodeDecodeError:
                 msgBox = QMessageBox()

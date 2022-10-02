@@ -10,7 +10,6 @@ from PyQt6.QtWidgets import (QDockWidget, QFileDialog, QFrame, QLabel,
 
 from globals import WINDOW_ICON
 from tabmanager import TabManager
-from palettes import Theme
 from tree import FileTree
 
 
@@ -112,6 +111,11 @@ class CustomMainWindow(QMainWindow):
         self.newAction.setShortcut(
             self.settings.hotkeys_settings['Создать новый файл'])
         self.newAction.triggered.connect(self.newActionHandler)
+        
+        self.newDatabaseAction = QAction("&Создать новую базу данных", self)
+        self.newDatabaseAction.setShortcut(
+            self.settings.hotkeys_settings['Создать новую базу данных'])
+        self.newDatabaseAction.triggered.connect(self.newDatabaseActionHandler)
 
         # TODO: сделать чтобы хоть как-то работало
         self.newWindowAction = QAction("&Новое окно", self)
@@ -172,6 +176,7 @@ class CustomMainWindow(QMainWindow):
 
         fileMenu = menuBar.addMenu("&Файл")
         fileMenu.addAction(self.newAction)
+        fileMenu.addAction(self.newDatabaseAction)
         fileMenu.addAction(self.newWindowAction)
         fileMenu.addSeparator()
         fileMenu.addAction(self.openAction)
@@ -254,6 +259,19 @@ class CustomMainWindow(QMainWindow):
         The newActionHandler function creates a new file in the editor.
         """
         self.add_tab(is_new_file=True)
+        
+    def newDatabaseActionHandler(self):
+        """
+        newDatabaseActionHandler создает новую базу данных.
+        """
+        import sqlite3
+        path = QFileDialog.getSaveFileName(
+            self, "Создать базу данных", "", "База данных (*.db)")[0]
+        if path:
+            sqlite3.connect(path)
+            self.openActionHandler(path)
+        else:
+            QMessageBox.warning(self, "Ошибка", "Не удалось создать базу данных")
 
     def newWindowActionHandler(self):
         """
