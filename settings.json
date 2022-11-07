@@ -1,1 +1,20 @@
-{"Последние файлы": ["C:/Users/genious/Documents/code/scripts/socks.py", "C:/Users/genious/Documents/code/scripts/niiswa.py", "C:/Users/genious/Documents/code/scripts/minesweeper.py", "C:/Users/genious/Documents/code/scripts/channels.txt", "C:/Users/genious/Documents/code/scripts/html_session.py", "C:/Users/genious/Documents/code/college/CPP/work2.cpp", "C:/Users/genious/Documents/code/college/pivo/query.sql", "C:/Users/genious/Documents/code/college/Учебная практика/ConnectedGraph.java", "C:/Users/genious/Documents/code/college/CPP/work4.cpp", "C:/Users/genious/Documents/code/projects/Code Editor/test.db"], "Горячие клавиши": {"Создать новый файл": "Ctrl+n", "Новое окно": "Ctrl+Shift+n", "Открыть файл": "Ctrl+o", "Открыть директорию": "Ctrl+k", "Сохранить": "Ctrl+s", "Сохранить как": "Ctrl+Shift+s", "Закрыть файл": "Ctrl+w", "Выйти": "Alt+f4", "О редакторе": "Ctrl+h", "Запуск файла": "f8", "Создать новую базу данных": "Ctrl+Shift+d"}, "Настройки запуска": {"py": "python $file_path"}, "Тема по умолчанию": "light"}
+{
+  "Последние файлы": [],
+  "Горячие клавиши": {
+    "Создать новый файл": "Ctrl+n",
+    "Новое окно": "Ctrl+Shift+n",
+    "Открыть файл": "Ctrl+o",
+    "Открыть директорию": "Ctrl+k",
+    "Сохранить": "Ctrl+s",
+    "Сохранить как": "Ctrl+Shift+s",
+    "Закрыть файл": "Ctrl+w",
+    "Выйти": "Alt+f4",
+    "О редакторе": "Ctrl+h",
+    "Запуск файла": "f8",
+    "Создать новую базу данных": "Ctrl+Shift+d"
+  },
+  "Настройки запуска": {
+    "py": "python $file_path"
+  },
+  "Тема по умолчанию": "light"
+}
